@@ -61,7 +61,10 @@ public class Score : MonoBehaviour {
         {
 
             score += (points * 2) +1 ;
-            other.gameObject.GetComponent<AudioSource>().Play();
+            if (PlayerPrefs.GetInt("sound") == 0)
+            {
+                other.gameObject.GetComponent<AudioSource>().Play();
+            }
             UpdateScore();
         }
 
@@ -103,6 +106,9 @@ public class Score : MonoBehaviour {
 
     void MakeNoise()
     {
-        noise.GetComponent<AudioSource>().Play();
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            noise.GetComponent<AudioSource>().Play();
+        }
     }
 }

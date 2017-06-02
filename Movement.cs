@@ -7,10 +7,9 @@ public class Movement : MonoBehaviour {
     //public Slider slider;
     float maxWidth;
     private bool reverse;
-    private bool can;
-    //float pos;
+    public  bool can;
     Vector3 bounds;
-    //Vector3 SliderPos;
+
     // Use this for initialization
     void Start () {
         bounds = new Vector3(Screen.width, 0.0f, 0.0f);
@@ -28,32 +27,34 @@ public class Movement : MonoBehaviour {
         maxWidth = target.x - hoopWidth;
 	}
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (can)
         {
             Vector3 newPosition;
              Vector3 rawPosition = cam.ScreenToWorldPoint(Input.mousePosition);
-           // Vector3 rawPosition = new Vector3(slider.value * SliderPos.x, transform.position.y);
+            // Vector3 rawPosition = new Vector3(slider.value * SliderPos.x, transform.position.y);
             if (reverse)
             {
                 newPosition = new Vector3(-rawPosition.x, transform.position.y, 0.0f);
-
-            }else newPosition = new Vector3(rawPosition.x, transform.position.y, 0.0f);
+            }
+            else
+            {
+                newPosition = new Vector3(rawPosition.x, transform.position.y, 0.0f);
+            }
 
             float target = Mathf.Clamp(newPosition.x, -maxWidth, maxWidth);
 
-            newPosition = new Vector3(target, transform.position.y, 0.0f);
-            GetComponent<Rigidbody2D>().MovePosition(newPosition);
+            transform.position = Vector3.Lerp(transform.position,new Vector3(target, transform.position.y, 0.0f),Time.fixedDeltaTime * 5);
+           
         }
     }
    
-
     public void toogle(bool other)
     {
         can = other;
     }
+
     public void Reversing(bool other)
     {
         reverse = other;

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using UnityEngine.Advertisements;
 using UnityEngine.SceneManagement;
 
 public class Controller : MonoBehaviour {
@@ -15,6 +14,7 @@ public class Controller : MonoBehaviour {
     public GameObject ReturnToMainMenu;
     public GameObject optionButton;
     public GameObject aboutButton;
+    public GameObject rateUsButton;
     public GameObject quitButton;
     public GameObject startDark;
     public GameObject quitMenu;
@@ -22,7 +22,7 @@ public class Controller : MonoBehaviour {
     public GameObject optionText;
     public GameObject ONOFF;
     public GameObject bestScoreText;
-    public GameObject musicPlayer;
+    GameObject musicPlayer;
     public GameObject badView;
     public GameObject tutoriel;
 
@@ -39,17 +39,32 @@ public class Controller : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        PlayerPrefs.SetInt("sound", 0);
 
         doubleTap = false;
 
         addition = false;
-        ONOFF.GetComponent<Text>().text = "ON";
+        musicPlayer = GameObject.Find("Music Manager");
+
+        if (PlayerPrefs.GetInt("score") == 0)
+        {
+            ONOFF.GetComponent<Text>().text = "ON";
+            if (!musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Play();
+
+        }else
+        {
+            ONOFF.GetComponent<Text>().text = "OFF";
+            if (musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Pause();
+
+        }
         highScoreText.GetComponent<Text>().text = "High Score: " + PlayerPrefs.GetInt("Score");
         play = false;
         Vector3 upperCorner = new Vector3(Screen.width, Screen.height, 0.0f);
         Vector3 targetWidth = cam1.ScreenToWorldPoint(upperCorner);
         float ballWidth = (balls[0].GetComponent<Renderer>().bounds.extents.x) / 2f;
         maxWidth = targetWidth.x - ballWidth;
+
+        timeLeft = 60;
        
     }
 
@@ -71,31 +86,15 @@ public class Controller : MonoBehaviour {
 
     void UpDate()
     {
-
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (doubleTap == false)
-            {
-                doubleTap = true;
-                StartCoroutine(quit());
-
-            }
-            else
-            {
-                Application.Quit();
-            }
+            PauseGame();
         }
-    }
-
-    IEnumerator quit()
-    {
-        yield return new WaitForSeconds(0.5f);
-        doubleTap = false;
     }
 
     IEnumerator Spawn()
     {
-        GetComponent<AudioSource>().Play();
+        
         yield return new WaitForSeconds(1.0f);
 
         while (timeLeft > 0)
@@ -111,7 +110,6 @@ public class Controller : MonoBehaviour {
         yield return new WaitForSeconds(0.1f);
         GameOver.SetActive(true);
         restartButton.SetActive(true);
-        //shareButton.SetActive(true);
         bestScoreText.SetActive(true);
 
     }
@@ -119,15 +117,18 @@ public class Controller : MonoBehaviour {
     public void StartGame()
     {
         play = true;
-        m.toogle(play);
+        m.can = true;
+       
         startButton.SetActive(false);
         highScoreText.SetActive(false);
         pauseButton.SetActive(true);
-        aboutButton.SetActive(true);
+        aboutButton.SetActive(false);
+        rateUsButton.SetActive(false);
         quitButton.SetActive(false);
         startDark.SetActive(false);
 
-        StartCoroutine(Spawn());
+        PauseGame();
+        PauseGame();
     }
 
     public void PauseGame()
@@ -156,6 +157,7 @@ public class Controller : MonoBehaviour {
         startButton.SetActive(false);
         highScoreText.SetActive(false);
         aboutButton.SetActive(false);
+        rateUsButton.SetActive(false);
         quitButton.SetActive(false);
         optionButton.SetActive(false);
         ReturnToMainMenu.SetActive(false);
@@ -168,6 +170,7 @@ public class Controller : MonoBehaviour {
         startButton.SetActive(true);
         highScoreText.SetActive(true);
         aboutButton.SetActive(true);
+        rateUsButton.SetActive(true);
         quitButton.SetActive(true);
         optionButton.SetActive(true);
         if (addition == true) ReturnToMainMenu.SetActive(true);
@@ -186,6 +189,7 @@ public class Controller : MonoBehaviour {
         highScoreText.SetActive(false);
         quitButton.SetActive(false);
         aboutButton.SetActive(false);
+        rateUsButton.SetActive(false);
         optionButton.SetActive(false);
     }
     //if return (about us) button is pressed
@@ -196,6 +200,7 @@ public class Controller : MonoBehaviour {
         highScoreText.SetActive(true);
         quitButton.SetActive(true);
         aboutButton.SetActive(true);
+        rateUsButton.SetActive(true);
         optionButton.SetActive(true);
     }
 
@@ -207,6 +212,7 @@ public class Controller : MonoBehaviour {
         highScoreText.SetActive(false);
         quitButton.SetActive(false);
         aboutButton.SetActive(false);
+        rateUsButton.SetActive(false);
         optionButton.SetActive(false);
     }
 
@@ -217,6 +223,7 @@ public class Controller : MonoBehaviour {
         startButton.SetActive(true);
         highScoreText.SetActive(true);
         quitButton.SetActive(true);
+        rateUsButton.SetActive(true);
         aboutButton.SetActive(true);
         optionButton.SetActive(true);
     }
@@ -228,9 +235,10 @@ public class Controller : MonoBehaviour {
         {
             ONOFF.GetComponent<Text>().text = "OFF";
             musicPlayer.GetComponent<AudioSource>().Pause();
+            PlayerPrefs.SetInt("sound", 1);
         }
         else { ONOFF.GetComponent<Text>().text = "ON";
-
+            PlayerPrefs.SetInt("sound", 0);
             musicPlayer.GetComponent<AudioSource>().UnPause();
         }
     }
@@ -242,11 +250,7 @@ public class Controller : MonoBehaviour {
 
     void ShowAd()
     {
-        if (Advertisement.IsReady())
-        {
-            Advertisement.Show();
-        }
-
+       
         SceneManager.LoadScene("Main");
     }
 
@@ -255,4 +259,8 @@ public class Controller : MonoBehaviour {
         Application.OpenURL("www.ballfall.ga");
     }
    
+    public void rateUs()
+    {
+        Application.OpenURL("https://play.google.com/store/apps/details?id=com.Oussama.BallFall");
+    }
 }

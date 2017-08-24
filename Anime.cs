@@ -4,7 +4,9 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 
 public class Anime : MonoBehaviour {
-    public float fly;
+	[Range(.1f,2f)]
+	public float fly = 0f;
+
     Vector2 move;
     public Text title;
     public Sprite[] images;
@@ -42,7 +44,6 @@ public class Anime : MonoBehaviour {
         {
             direction = true;
             gameObject.GetComponent<AudioSource>().Play();
-            fly = 12f;
             imageId++;
             if (imageId > 5) imageId = 0;
             GetComponent<SpriteRenderer>().sprite = images[imageId];

@@ -27,7 +27,9 @@ public class Score : MonoBehaviour {
             score += points;
             UpdateScore();
             MakeNoise();
-        }else if(other.gameObject.tag == "bomb")
+            Scorer.text = other.gameObject.tag;
+        }
+        else if(other.gameObject.tag == "bomb")
         {
             score -= points+1;
             UpdateScore();
@@ -94,7 +96,7 @@ public class Score : MonoBehaviour {
                 PlayerPrefs.SetInt("Score", score);
                 bestScore = score;
             }
-            c.bestScoreText.GetComponent<Text>().text = "SCORE: " + score+ "\n\nBEST SCORE: "+ bestScore;
+          //  c.bestScoreText.GetComponent<Text>().text = "SCORE: " + score+ "\n\nBEST SCORE: "+ bestScore;
         }
     }
 

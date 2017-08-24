@@ -18,8 +18,7 @@ public class Explode : MonoBehaviour {
         Debug.Log(PlayerPrefs.GetInt("sound"));
         if (PlayerPrefs.GetInt("sound") == 0)
         {
-            Debug.Log("ththhthhth");
-
+           
             GetComponent<AudioSource>().Play();
 
         }

@@ -15,14 +15,6 @@ public class Explode : MonoBehaviour {
 
     void exploding()
     {
-        Debug.Log(PlayerPrefs.GetInt("sound"));
-        if (PlayerPrefs.GetInt("sound") == 0)
-        {
-           
-            GetComponent<AudioSource>().Play();
-
-        }
-
         Instantiate(explosion, transform.position, transform.rotation);
 
             foreach (var effect in effects)
@@ -31,15 +23,10 @@ public class Explode : MonoBehaviour {
                 effect.Stop();
                 Destroy(effect.gameObject, 1.0f);
             }
-
             Destroy(gameObject);
-
         
     }
 
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        exploding();
-    }
+    
 
-    }
+}

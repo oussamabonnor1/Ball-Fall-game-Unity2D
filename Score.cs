@@ -3,12 +3,14 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class Score : MonoBehaviour {
-    int score;
+    public static int score;
     public int points;
-    public Text Scorer;
     public GameObject noise;
+    public GameObject bombNoise;
+    public GameObject Scorer;
+    public AudioClip[] goodBadVibe;
      int bestScore;
-    public Controller c;
+    public Controller controllerScript;
     public Movement m;
     private bool reverse;
 
@@ -25,50 +27,55 @@ public class Score : MonoBehaviour {
         if (other.gameObject.tag == "ball")
         {
             score += points;
-            UpdateScore();
+            
             MakeNoise();
-            Scorer.text = other.gameObject.tag;
         }
         else if(other.gameObject.tag == "bomb")
         {
             score -= points+1;
-            UpdateScore();
         }
         else if (other.gameObject.tag == "blue ball")
         {
-            if (c.timeLeft > 55) c.timeLeft = 60;
-            else c.timeLeft += 5;
+            if (controllerScript.timeLeft > 55) controllerScript.timeLeft = 60;
+            else controllerScript.timeLeft += 5;
             MakeNoise();
         }
         else if (other.gameObject.tag == "black ball")
         {
             MakeNoise();
-            c.badView.SetActive(true);
+            controllerScript.badView.SetActive(true);
             StartCoroutine(badView());
         }
         else if (other.gameObject.tag == "reverse")
         {
+
             reverse = !reverse;
             m.Reversing(reverse);
-            if (reverse) points *= 2;
-            else points = 2;
+            if (reverse)
+            {
+                points *= 2;
+                bombNoise.GetComponent<AudioSource>().clip = goodBadVibe[0];
+            }
+            else
+            {
+                bombNoise.GetComponent<AudioSource>().clip = goodBadVibe[1];
+                points = 2;
+            }
+            bombNoise.GetComponent<AudioSource>().Play();
         }
         else if (other.gameObject.tag == "purpul ball")
         {
             
-            c.timeLeft -= 5;
+            controllerScript.timeLeft -= 5;
             MakeNoise();
         }
         else if (other.gameObject.tag == "green ball")
         {
-
             score += (points * 2) +1 ;
-            if (PlayerPrefs.GetInt("sound") == 0)
-            {
-                other.gameObject.GetComponent<AudioSource>().Play();
-            }
-            UpdateScore();
+            MakeNoise();
+            
         }
+        UpdateScore();
 
     }
 
@@ -78,32 +85,33 @@ public class Score : MonoBehaviour {
         {
             score -= 2;
             UpdateScore();
+            if (PlayerPrefs.GetInt("score") == 0) bombNoise.GetComponent<AudioSource>().Play();
         }
     }
 
     void UpdateScore()
     {
         if (score < 0) score = 0;
-        Scorer.text = "Score: " + score;
+        Scorer.GetComponent<Text>().text = "Score: " + score;
     }
 
     void FixedUpdate()
     {
-        if (c.timeLeft <= 0)
+        if (controllerScript.timeLeft <= 0)
         {
             if (score > bestScore)
             {
                 PlayerPrefs.SetInt("Score", score);
                 bestScore = score;
             }
-          //  c.bestScoreText.GetComponent<Text>().text = "SCORE: " + score+ "\n\nBEST SCORE: "+ bestScore;
+          //  controllerScript.bestScoreText.GetComponent<Text>().text = "SCORE: " + score+ "\n\nBEST SCORE: "+ bestScore;
         }
     }
 
     IEnumerator badView()
     {
         yield return new WaitForSeconds(2.0f);
-        c.badView.SetActive(false);
+        controllerScript.badView.SetActive(false);
     }
 
     void MakeNoise()

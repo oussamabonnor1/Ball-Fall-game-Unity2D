@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     public GameObject startDark;
     public GameObject startMenu;
     public GameObject parameterMenu;
+    public GameObject finishedMenu;
 
     GameObject musicPlayer;
 
@@ -36,10 +37,11 @@ public class UIManager : MonoBehaviour
 
         musicPlayer = GameObject.Find("Music Manager");
 
-        if (PlayerPrefs.GetInt("score") == 0)
+        if (PlayerPrefs.GetInt("sound") == 0)
         {
             //sound on
             parameterMenu.transform.GetChild(2).GetComponent<Image>().sprite = IconSprites[0];
+            if(!musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Play();
         }
         else
         {
@@ -48,7 +50,7 @@ public class UIManager : MonoBehaviour
             //ONOFF.GetComponent<Text>().text = "OFF";
             if (musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Pause();
         }
-        highScoreText.GetComponent<Text>().text = "  Best Score\n      : " + PlayerPrefs.GetInt("Score");
+        highScoreText.GetComponent<Text>().text = "  Best Score\n       x " + PlayerPrefs.GetInt("Score");
         play = false;
     
     }
@@ -56,9 +58,21 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!play)
+        {
+            startMenu.transform.GetChild(0).GetComponent<RectTransform>().transform.Rotate(0, 0, 50 * Time.deltaTime);
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             PauseGame();
+        }
+
+        if((int) controllerScript.timeLeft == 1) StopAllCoroutines();
+        if (controllerScript.timeLeft <= 0)
+        {
+            finishedMenu.SetActive(true);
+            finishedMenu.transform.GetChild(4).GetComponent<Text>().text = "x "+ PlayerPrefs.GetInt("Score");
+            finishedMenu.transform.GetChild(5).GetComponent<Text>().text = "x " + Score.score;
         }
     }
 
@@ -66,10 +80,9 @@ public class UIManager : MonoBehaviour
     {
         play = true;
         movementScript.can = true;
+        controllerScript.startedPlaying = true;
         startDark.SetActive(false);
-
-        PauseGame();
-        PauseGame();
+        StartCoroutine(controllerScript.Spawn());
     }
 
     public void PauseGame()
@@ -108,6 +121,7 @@ public class UIManager : MonoBehaviour
     // if yes (quit) button 
     public void QuitGame()
     {
+        if (PlayerPrefs.GetInt("score") < Score.score) PlayerPrefs.SetInt("score", Score.score);
         Application.Quit();
     }
 
@@ -181,11 +195,13 @@ public class UIManager : MonoBehaviour
             parameterMenu.transform.GetChild(2).GetComponent<Image>().sprite = IconSprites[0];
             PlayerPrefs.SetInt("sound", 0);
             musicPlayer.GetComponent<AudioSource>().UnPause();
+            if(!musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Play();
         }
     }
 
     public void RestartGame()
     {
+        if(PlayerPrefs.GetInt("score") < Score.score) PlayerPrefs.SetInt("score",Score.score);
         Time.timeScale = 1;
         ShowAd();
     }
@@ -201,7 +217,7 @@ public class UIManager : MonoBehaviour
 
     public void siteVisit()
     {
-        Application.OpenURL("www.ballfall.ga");
+        Application.OpenURL("https://www.jetlight-studio.tk/");
     }
 
     public void rateUs()

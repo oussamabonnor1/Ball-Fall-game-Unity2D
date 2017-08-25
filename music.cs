@@ -1,30 +1,33 @@
 ﻿using UnityEngine;
-using System.Collections;
-public class Music : MonoBehaviour
+
+namespace Assets.Scripts
 {
-    public static Music Instance;
-
-    // Use this for initialization
-    void Start()
+    public class music : MonoBehaviour
     {
+        public static music Instance;
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    void Awake()
-    {
-
-        if (Instance)
-            DestroyImmediate(gameObject);
-        else
+        // Use this for initialization
+        void Start()
         {
-            DontDestroyOnLoad(gameObject);
-            Instance = this;
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
+
+        void Awake()
+        {
+
+            if (Instance)
+                DestroyImmediate(gameObject);
+            else
+            {
+                DontDestroyOnLoad(gameObject);
+                Instance = this;
+            }
         }
     }
 }

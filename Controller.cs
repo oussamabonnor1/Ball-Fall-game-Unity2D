@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class Controller : MonoBehaviour {
+
     public GameObject[] balls;
     public GameObject background;
     public GameObject GameOver;
@@ -14,14 +15,16 @@ public class Controller : MonoBehaviour {
     public Text timer;
     public Camera cam1;
 
-    static float maxWidth;
+    float maxWidth;
     public float timeLeft;
+    public bool startedPlaying;
 
     
     // Use this for initialization
-    void Start() {
+    void Start()
+    {
+        startedPlaying = false;
         ResizeBackground(background);
-        PlayerPrefs.SetInt("sound", 0);
 
         Vector3 upperCorner = new Vector3(Screen.width, Screen.height, 0.0f);
         Vector3 targetWidth = cam1.ScreenToWorldPoint(upperCorner);
@@ -57,33 +60,20 @@ public class Controller : MonoBehaviour {
 
     void FixedUpdate()
     {
-        
+        if (startedPlaying)
+        {
             timeLeft -= Time.deltaTime;
             if (timeLeft <= 0)
             {
-                timer.text = "Time's UP !!!";
-               // pauseButton.SetActive(false);
+                timer.text = ": 0";
             }
             else timer.text = ": " + Mathf.RoundToInt(timeLeft);
-        
-
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-           
         }
+
     }
 
     public IEnumerator Spawn()
     {
-        for (int i = 0; i < 3; i++)
-        {
-            yield return new WaitForSeconds(1f);
-
-        }
         while (timeLeft > 0)
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-maxWidth, maxWidth), transform.position.y, 0.0f);

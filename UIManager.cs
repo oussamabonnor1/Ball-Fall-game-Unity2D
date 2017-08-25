@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Advertisements;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("UI components")]
     public GameObject highScoreText;
     public GameObject pauseMenu;
     public GameObject startDark;
@@ -14,6 +16,10 @@ public class UIManager : MonoBehaviour
 
     GameObject musicPlayer;
 
+    [Header("Essentiel components")]
+    public Sprite[] IconSprites;
+
+    [Header("Scripts")]
     public Movement movementScript;
     public Controller controllerScript;
 
@@ -23,8 +29,8 @@ public class UIManager : MonoBehaviour
 
 
     // Use this for initialization
-    void Start () {
-
+    void Start()
+    {
         doubleTap = false;
         addition = false;
 
@@ -32,25 +38,29 @@ public class UIManager : MonoBehaviour
 
         if (PlayerPrefs.GetInt("score") == 0)
         {
-           // ONOFF.GetComponent<Text>().text = "ON";
-            if (!musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Play();
-
+            //sound on
+            parameterMenu.transform.GetChild(2).GetComponent<Image>().sprite = IconSprites[0];
         }
         else
         {
+            //sound off
+            parameterMenu.transform.GetChild(2).GetComponent<Image>().sprite = IconSprites[1];
             //ONOFF.GetComponent<Text>().text = "OFF";
             if (musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Pause();
-
         }
-        highScoreText.GetComponent<Text>().text = "  Best Score\n        : " + PlayerPrefs.GetInt("Score");
+        highScoreText.GetComponent<Text>().text = "  Best Score\n      : " + PlayerPrefs.GetInt("Score");
         play = false;
-
+    
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            PauseGame();
+        }
+    }
 
     public void StartGame()
     {
@@ -94,6 +104,7 @@ public class UIManager : MonoBehaviour
     {
         startMenu.SetActive(true);
     }
+
     // if yes (quit) button 
     public void QuitGame()
     {
@@ -103,46 +114,88 @@ public class UIManager : MonoBehaviour
     //about us button clicked
     public void AboutUs()
     {
-        
     }
+
     //if return (about us) button is pressed
     public void Returning()
     {
-        
     }
 
     //if option button clicked
     public void optionClicked()
     {
-        parameterMenu.SetActive(!parameterMenu.activeSelf);
+        StartCoroutine(paramAnim(parameterMenu.activeSelf));
     }
 
-    
-
-    //if On/OFF clicked
-    /*public void OnOff()
+    IEnumerator paramAnim(bool state)
     {
-        if (ONOFF.GetComponent<Text>().text == "ON")
+        if (state)
         {
-            ONOFF.GetComponent<Text>().text = "OFF";
+            for (int i = 9; i > 0; i--)
+            {
+                for (int j = 2; j > -1; j--)
+                {
+                    Vector3 a = new Vector3(parameterMenu.transform.GetChild(j).transform.localPosition.x,
+                        parameterMenu.transform.GetChild(j).transform.localPosition.y,
+                        parameterMenu.transform.GetChild(j).transform.localPosition.z);
+
+                    parameterMenu.transform.GetChild(j).transform.localPosition =
+                        new Vector3(a.x, a.y - (i * (2.75f + j * 2.75f)), a.z);
+                    yield return new WaitForSeconds(0.01f);
+                }
+            }
+            parameterMenu.SetActive(!state);
+
+        }
+        else
+        {
+            parameterMenu.SetActive(!state);
+            for (int i = 1; i < 10; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Vector3 a = new Vector3(parameterMenu.transform.GetChild(j).transform.localPosition.x,
+                        parameterMenu.transform.GetChild(j).transform.localPosition.y,
+                        parameterMenu.transform.GetChild(j).transform.localPosition.z);
+
+                    parameterMenu.transform.GetChild(j).transform.localPosition =
+                        new Vector3(a.x, a.y + (i * (2.75f + j * 2.75f)), a.z);
+                    yield return new WaitForSeconds(0.01f);
+                }
+            }}
+    }
+    
+    //if On/OFF clicked
+    public void OnOff()
+    {
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            //sound BECOMING OFF
+            parameterMenu.transform.GetChild(2).GetComponent<Image>().sprite = IconSprites[1];
             musicPlayer.GetComponent<AudioSource>().Pause();
             PlayerPrefs.SetInt("sound", 1);
         }
         else
         {
-            ONOFF.GetComponent<Text>().text = "ON";
+            //sound BECOMING ON
+            parameterMenu.transform.GetChild(2).GetComponent<Image>().sprite = IconSprites[0];
             PlayerPrefs.SetInt("sound", 0);
             musicPlayer.GetComponent<AudioSource>().UnPause();
         }
-    }*/
+    }
 
     public void RestartGame()
     {
+        Time.timeScale = 1;
         ShowAd();
     }
 
     void ShowAd()
     {
+        if (Advertisement.IsReady())
+        {
+            Advertisement.Show();
+        }
         SceneManager.LoadScene("Main");
     }
 

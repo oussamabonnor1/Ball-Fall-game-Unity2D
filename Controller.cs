@@ -6,10 +6,8 @@ public class Controller : MonoBehaviour {
 
     public GameObject[] balls;
     public GameObject background;
-    public GameObject GameOver;
-    
+    public Sprite[] BackgroundsSprites;
     public GameObject badView;
-    public GameObject tutoriel;
 
     public Movement m;
     public Text timer;
@@ -24,6 +22,9 @@ public class Controller : MonoBehaviour {
     void Start()
     {
         startedPlaying = false;
+        background.GetComponent<SpriteRenderer>().sprite = BackgroundsSprites[PlayerPrefs.GetInt("bg")];
+        if (PlayerPrefs.GetInt("bg") == 0) PlayerPrefs.SetInt("bg", 1);
+        else PlayerPrefs.SetInt("bg", 0);
         ResizeBackground(background);
 
         Vector3 upperCorner = new Vector3(Screen.width, Screen.height, 0.0f);

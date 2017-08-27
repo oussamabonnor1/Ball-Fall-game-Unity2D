@@ -14,8 +14,12 @@ public class Score : MonoBehaviour {
     public Movement m;
     private bool reverse;
 
+    private int taps;
+
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
+	    taps = 0;
         reverse = false;
         score = 0;
         bestScore = PlayerPrefs.GetInt("Score");
@@ -79,20 +83,42 @@ public class Score : MonoBehaviour {
 
     }
 
+    void Update()
+    {
+        if (controllerScript.badView.activeSelf)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                taps++;
+            }
+        }
+    }
+
     void OnCollisionEnter2D (Collision2D other)
     {
-        if(other.gameObject.tag == "bomb")
+        if (other.gameObject.tag == "bomb")
         {
             score -= 2;
             UpdateScore();
-            if (PlayerPrefs.GetInt("score") == 0) bombNoise.GetComponent<AudioSource>().Play();
+            if (PlayerPrefs.GetInt("sound") == 0)
+            {
+                bombNoise.GetComponent<AudioSource>().clip = goodBadVibe[2];
+                bombNoise.GetComponent<AudioSource>().Play();
+            }
+        }
+        else
+        {
+            if (PlayerPrefs.GetInt("sound") == 0 && !GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().Play();
+            }
         }
     }
 
     void UpdateScore()
     {
         if (score < 0) score = 0;
-        Scorer.GetComponent<Text>().text = "Score: " + score;
+        Scorer.GetComponent<Text>().text = "x " + score;
     }
 
     void FixedUpdate()
@@ -110,8 +136,15 @@ public class Score : MonoBehaviour {
 
     IEnumerator badView()
     {
-        yield return new WaitForSeconds(2.0f);
+        m.can = false;
+        do
+        {
+            yield return new WaitForSeconds(0.01f);
+            controllerScript.badView.transform.GetChild(0).GetComponent<Text>().text = "Taps Lefts: " + (9 - taps);
+        } while (taps < 9);
         controllerScript.badView.SetActive(false);
+        taps = 0;
+        m.can = true;
     }
 
     void MakeNoise()

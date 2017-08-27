@@ -13,7 +13,11 @@ public class UIManager : MonoBehaviour
     public GameObject startDark;
     public GameObject startMenu;
     public GameObject parameterMenu;
+    public GameObject creditMenu;
     public GameObject finishedMenu;
+    public GameObject paramButton;
+    public GameObject creditButton;
+    public GameObject tutorielMenu;
 
     GameObject musicPlayer;
 
@@ -32,6 +36,12 @@ public class UIManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        if (PlayerPrefs.GetInt("firstTime") == 0)
+        {
+            tutoriel();
+            PlayerPrefs.SetInt("firstTime",1);
+        }
+
         doubleTap = false;
         addition = false;
 
@@ -50,7 +60,7 @@ public class UIManager : MonoBehaviour
             //ONOFF.GetComponent<Text>().text = "OFF";
             if (musicPlayer.GetComponent<AudioSource>().isPlaying) musicPlayer.GetComponent<AudioSource>().Pause();
         }
-        highScoreText.GetComponent<Text>().text = "  Best Score\n       x " + PlayerPrefs.GetInt("Score");
+        highScoreText.GetComponent<Text>().text = "  Best Score\n        : " + PlayerPrefs.GetInt("Score");
         play = false;
     
     }
@@ -62,7 +72,7 @@ public class UIManager : MonoBehaviour
         {
             startMenu.transform.GetChild(0).GetComponent<RectTransform>().transform.Rotate(0, 0, 50 * Time.deltaTime);
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && play)
         {
             PauseGame();
         }
@@ -87,6 +97,10 @@ public class UIManager : MonoBehaviour
 
     public void PauseGame()
     {
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            GetComponent<AudioSource>().Play();
+        }
         addition = true;
         play = !play;
         movementScript.toogle(play);
@@ -128,25 +142,70 @@ public class UIManager : MonoBehaviour
     //about us button clicked
     public void AboutUs()
     {
+        StartCoroutine(creditAnim(creditMenu.activeSelf));
     }
 
-    //if return (about us) button is pressed
-    public void Returning()
+    IEnumerator creditAnim(bool state)
     {
+        creditButton.GetComponent<Button>().enabled = false;
+        if (state)
+        {
+            for (int i = 9; i > 0; i--)
+            {
+                creditButton.transform.Rotate(0, 0, -10f);
+                for (int j = 2; j > -1; j--)
+                {
+                    Vector3 a = new Vector3(creditMenu.transform.GetChild(j).transform.localPosition.x,
+                        creditMenu.transform.GetChild(j).transform.localPosition.y,
+                        creditMenu.transform.GetChild(j).transform.localPosition.z);
+
+                    creditMenu.transform.GetChild(j).transform.localPosition =
+                        new Vector3(a.x, a.y - (i * (2.75f + j * 2.75f)), a.z);
+                    yield return new WaitForSeconds(0.01f);
+                }
+            }
+            creditMenu.SetActive(!state);
+
+        }
+        else
+        {
+            creditMenu.SetActive(!state);
+            for (int i = 1; i < 10; i++)
+            {
+                creditButton.transform.Rotate(0, 0, 10f);
+                for (int j = 0; j < 3; j++)
+                {
+                    Vector3 a = new Vector3(creditMenu.transform.GetChild(j).transform.localPosition.x,
+                        creditMenu.transform.GetChild(j).transform.localPosition.y,
+                        creditMenu.transform.GetChild(j).transform.localPosition.z);
+
+                    creditMenu.transform.GetChild(j).transform.localPosition =
+                        new Vector3(a.x, a.y + (i * (2.75f + j * 2.75f)), a.z);
+                    yield return new WaitForSeconds(0.01f);
+                }
+            }
+        }
+        creditButton.GetComponent<Button>().enabled = true;
     }
 
     //if option button clicked
     public void optionClicked()
     {
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            GetComponent<AudioSource>().Play();
+        }
         StartCoroutine(paramAnim(parameterMenu.activeSelf));
     }
 
     IEnumerator paramAnim(bool state)
     {
+        paramButton.GetComponent<Button>().enabled = false;
         if (state)
         {
             for (int i = 9; i > 0; i--)
             {
+                paramButton.transform.Rotate(0,0,10f);
                 for (int j = 2; j > -1; j--)
                 {
                     Vector3 a = new Vector3(parameterMenu.transform.GetChild(j).transform.localPosition.x,
@@ -166,6 +225,7 @@ public class UIManager : MonoBehaviour
             parameterMenu.SetActive(!state);
             for (int i = 1; i < 10; i++)
             {
+                paramButton.transform.Rotate(0, 0, -10f);
                 for (int j = 0; j < 3; j++)
                 {
                     Vector3 a = new Vector3(parameterMenu.transform.GetChild(j).transform.localPosition.x,
@@ -176,7 +236,9 @@ public class UIManager : MonoBehaviour
                         new Vector3(a.x, a.y + (i * (2.75f + j * 2.75f)), a.z);
                     yield return new WaitForSeconds(0.01f);
                 }
-            }}
+            }
+        }
+        paramButton.GetComponent<Button>().enabled = true;
     }
     
     //if On/OFF clicked
@@ -215,9 +277,49 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("Main");
     }
 
+    public void pageVisit()
+    {
+        Application.OpenURL("https://www.facebook.com/JetLightstudio/");
+    }
     public void siteVisit()
     {
         Application.OpenURL("https://www.jetlight-studio.tk/");
+    }
+
+    public void creditScene()
+    {
+        SceneManager.LoadScene("Credit");
+    }
+
+    public void tutoriel()
+    {
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            GetComponent<AudioSource>().Play();
+        }
+        startDark.transform.GetChild(0).gameObject.SetActive(!startMenu.activeSelf);
+        startDark.transform.GetChild(1).gameObject.SetActive(!startMenu.activeSelf);
+    }
+
+    public void tutorielRight()
+    {
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            GetComponent<AudioSource>().Play();
+        }
+        float value = startDark.transform.GetChild(1).GetComponentInChildren<Scrollbar>().value;
+        value += (float)1 / startDark.transform.GetChild(1).GetComponentInChildren<Scrollbar>().numberOfSteps;
+        startDark.transform.GetChild(1).GetComponentInChildren<Scrollbar>().value = value;
+    }
+    public void tutorielLeft()
+    {
+        if (PlayerPrefs.GetInt("sound") == 0)
+        {
+            GetComponent<AudioSource>().Play();
+        }
+        float value = startDark.transform.GetChild(1).GetComponentInChildren<Scrollbar>().value;
+        value -= (float)1 / startDark.transform.GetChild(1).GetComponentInChildren<Scrollbar>().numberOfSteps;
+        startDark.transform.GetChild(1).GetComponentInChildren<Scrollbar>().value = value;
     }
 
     public void rateUs()

@@ -45,7 +45,7 @@ public class Movement : MonoBehaviour {
 
             float target = Mathf.Clamp(newPosition.x, -maxWidth, maxWidth);
 
-            transform.position = Vector3.Lerp(transform.position,new Vector3(target, transform.position.y, 0.0f),Time.fixedDeltaTime * 5);
+            transform.position = Vector3.Lerp(transform.position,new Vector3(target, transform.position.y, 0.0f),Time.fixedDeltaTime * 7.5f);
            
         }
     }

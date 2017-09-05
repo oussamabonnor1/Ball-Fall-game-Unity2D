@@ -5,6 +5,7 @@ using System.Collections;
 public class Controller : MonoBehaviour {
 
     public GameObject[] balls;
+    public GameObject[] rareItems;
     public GameObject background;
     public Sprite[] BackgroundsSprites;
     public GameObject badView;
@@ -79,7 +80,10 @@ public class Controller : MonoBehaviour {
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-maxWidth, maxWidth), transform.position.y, 0.0f);
             Quaternion spawnRotation = Quaternion.identity;
-            GameObject ball = balls[Random.Range(0, balls.Length)];
+            int luck = Random.Range(0, 5);
+            GameObject ball;
+            if (luck != 0) ball = balls[Random.Range(0, balls.Length)];
+            else ball = rareItems[Random.Range(0, rareItems.Length)];
             Instantiate(ball, spawnPosition, spawnRotation);
             yield return new WaitForSeconds(Random.Range(0.5f, 0.8f));
         }

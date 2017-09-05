@@ -12,6 +12,7 @@ public class Score : MonoBehaviour {
      int bestScore;
     public Controller controllerScript;
     public Movement m;
+    public googlePlayScript uiManager;
     private bool reverse;
 
     private int taps;
@@ -71,7 +72,8 @@ public class Score : MonoBehaviour {
         {
             
             controllerScript.timeLeft -= 5;
-            MakeNoise();
+            bombNoise.GetComponent<AudioSource>().clip = goodBadVibe[0];
+            bombNoise.GetComponent<AudioSource>().Play();
         }
         else if (other.gameObject.tag == "green ball")
         {
@@ -129,8 +131,38 @@ public class Score : MonoBehaviour {
             {
                 PlayerPrefs.SetInt("Score", score);
                 bestScore = score;
+                if (score > 100 && PlayerPrefs.GetInt("firstAchievement") == 0)
+                {
+                    uiManager.unlockAchievement(GPGSIds.achievement_score_100_for_the_first_time);
+                    PlayerPrefs.SetInt("firstAchievement", 1);
+                }
+                if (score > 200 && PlayerPrefs.GetInt("secondAchievement") == 0)
+                {
+                    uiManager.unlockAchievement(GPGSIds.achievement_ball_fall_amateur);
+                    PlayerPrefs.SetInt("secondAchievement", 1);
+                }
+                if (score > 300 && PlayerPrefs.GetInt("thirdAchievement") == 0)
+                {
+                    uiManager.unlockAchievement(GPGSIds.achievement_ball_fall_player_anyone);
+                    PlayerPrefs.SetInt("thirdAchievement", 1);
+                }
+                if (score > 400 && PlayerPrefs.GetInt("fourthAchievement") == 0)
+                {
+                    uiManager.unlockAchievement(GPGSIds.achievement_wow_very_ball_much_fall);
+                    PlayerPrefs.SetInt("fourthAchievement", 1);
+                }
+                if (score > 500 && PlayerPrefs.GetInt("fifthAchievement") == 0)
+                {
+                    uiManager.unlockAchievement(GPGSIds.achievement_balls_fall_at_your_feet_master);
+                    PlayerPrefs.SetInt("fifthAchievement", 1);
+                }
+                if (score > 750 && PlayerPrefs.GetInt("sixthAchievement") == 0)
+                {
+                    uiManager.unlockAchievement(GPGSIds.achievement_we_did_not_think_it_was_possible);
+                    PlayerPrefs.SetInt("sixthAchievement", 1);
+                }
+                uiManager.addScoreLeaderbord(GPGSIds.leaderboard_best_scores,bestScore);
             }
-          //  controllerScript.bestScoreText.GetComponent<Text>().text = "SCORE: " + score+ "\n\nBEST SCORE: "+ bestScore;
         }
     }
 

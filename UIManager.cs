@@ -27,15 +27,18 @@ public class UIManager : MonoBehaviour
     [Header("Scripts")]
     public Movement movementScript;
     public Controller controllerScript;
+    public googlePlayScript uiManager;
 
     bool addition;
     private bool play;
     bool doubleTap;
+    private float sessionTime;
 
 
     // Use this for initialization
     void Start()
     {
+        sessionTime = 0;
         if (PlayerPrefs.GetInt("firstTime") == 0)
         {
             tutoriel();
@@ -77,15 +80,20 @@ public class UIManager : MonoBehaviour
             PauseGame();
         }
 
+        if (play && controllerScript.timeLeft > 0) sessionTime += Time.deltaTime;
         if((int) controllerScript.timeLeft == 1) StopAllCoroutines();
         if (controllerScript.timeLeft <= 0)
         {
+            if (PlayerPrefs.GetFloat("sessionTime") < sessionTime)
+            {
+                uiManager.addScoreLeaderbord(GPGSIds.leaderboard_longest_game_session,(int) (sessionTime * 100));
+            }
             finishedMenu.SetActive(true);
             finishedMenu.transform.GetChild(4).GetComponent<Text>().text = "x "+ PlayerPrefs.GetInt("Score");
             finishedMenu.transform.GetChild(5).GetComponent<Text>().text = "x " + Score.score;
         }
     }
-
+    
     public void StartGame()
     {
         play = true;
@@ -266,6 +274,62 @@ public class UIManager : MonoBehaviour
         if(PlayerPrefs.GetInt("score") < Score.score) PlayerPrefs.SetInt("score",Score.score);
         Time.timeScale = 1;
         ShowAd();
+    }
+
+    public void screenShot()
+    {
+        StartCoroutine(takeScreenshotAndSave());
+    }
+
+    private IEnumerator takeScreenshotAndSave()
+    {
+        string path = "";
+        yield return new WaitForEndOfFrame();
+
+        Texture2D screenImage = new Texture2D(Screen.width, Screen.height);
+
+        //Get Image from screen
+        screenImage.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+        screenImage.Apply();
+
+        //Convert to png
+        byte[] imageBytes = screenImage.EncodeToPNG();
+
+
+        System.IO.Directory.CreateDirectory(Application.persistentDataPath + "/BallFallScreenShot");
+        path = Application.persistentDataPath + "/BallFallScreenShot" + "/BestScoreBF.png";
+        System.IO.File.WriteAllBytes(path, imageBytes);
+
+        StartCoroutine(shareScreenshot(path));
+    }
+
+    private IEnumerator shareScreenshot(string destination)
+    {
+        string ShareSubject = "Picture Share";
+        string shareLink = "";
+        string textToShare = "Ball Fall 2";
+
+        Debug.Log(destination);
+
+
+        if (!Application.isEditor)
+        {
+
+            AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
+            AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
+            intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string>("ACTION_SEND"));
+            AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
+            AndroidJavaObject uriObject = uriClass.CallStatic<AndroidJavaObject>("parse", "file://" + destination);
+
+            intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_STREAM"), uriObject);
+            intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), textToShare + shareLink);
+            intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_SUBJECT"), ShareSubject);
+            intentObject.Call<AndroidJavaObject>("setType", "image/png");
+            AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
+            currentActivity.Call("startActivity", intentObject);
+        }
+        yield return null;
     }
 
     void ShowAd()

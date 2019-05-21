@@ -1,5 +1,6 @@
 # Ball-Fall-Android-game 
 ![Downloads](https://img.shields.io/badge/Aptoide%20store-3k--5k-orange.svg)
+![Jetlight studio](https://img.shields.io/badge/Made%20by-Jetlight%20studio-blue.svg?color=082544)
 
 Ball Fall is an addictive catch game. Keep your eyes open and your fingers ready.
 
@@ -20,4 +21,4 @@ Ball Fall is an addictive catch game. Keep your eyes open and your fingers ready
 Feel free to `fork` this project and add whatever you like. If you have any suggestions or any comments please feel free to contact me or to open an issue.
 
 ## Team:
-`Jetlighters` having fun.
+[Jetlighters](https://github.com/JetLightStudio) having fun.
